@@ -699,7 +699,7 @@ void close_sockets(struct sipsak_con_data *cd) {
 	dbg("sockets closed\n");
 }
 
-void send_message(char* mes, struct sipsak_con_data *cd,
+void send_message(shoot_t *s, char* mes, struct sipsak_con_data *cd,
 			struct sipsak_counter *sc, struct sipsak_sr_time *srt) {
 	struct timezone tz;
 	int ret;
@@ -711,7 +711,7 @@ void send_message(char* mes, struct sipsak_con_data *cd,
 		/* lets fire the request to the server and store when we did */
 		if (cd->csock == -1) {
 			dbg("\nusing un-connected socket for sending\n");
-			ret = sendto(cd->usock, mes, strlen(mes), 0, address.ai_addr, address.ai_addrlen);
+			ret = sendto(cd->usock, mes, strlen(mes), 0, s->addrinfo.ai_addr, s->addrinfo.ai_addrlen);
 		}
 		else {
 			dbg("\nusing connected socket for sending\n");

@@ -321,11 +321,11 @@ SSL* ssl;
 #endif
 
 typedef struct shoot_t {
+    struct addrinfo addrinfo;
     regex_t *re;
 } shoot_t;
 
 /* lots of global variables. ugly but makes life easier. */
-struct addrinfo address;
 unsigned int nonce_count, transport;
 int sleep_ms, processes, cseq_counter;
 int verbose, nameend, namebeg, expires_t, flood, warning_ext, invite, message;

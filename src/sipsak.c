@@ -827,9 +827,9 @@ int main(int argc, char *argv[])
 	char *target = outbound_proxy ? proxyname : domainname;
 
 	if (target) {
-		getaddress(target, rport, transport, &address);
+		getaddress(target, rport, transport, &s.addrinfo);
 	} else {
-		if (getsrvadr(host, &address) < 0) {
+		if (getsrvadr(host, &s.addrinfo) < 0) {
 			if (outbound_proxy) {
 				exit_code(2, __PRETTY_FUNCTION__, "failed to determine the outbound proxy address");
 			} else {
@@ -1033,7 +1033,7 @@ int main(int argc, char *argv[])
 #endif /* WITH_TLS_TRANSP */
 
 	/* determine our hostname */
-	get_fqdn(address.ai_family);
+	get_fqdn(s.addrinfo.ai_family);
 	
 	/* this is not a cryptographic random number generator,
 	   but hey this is only a test-tool => should be satisfying*/

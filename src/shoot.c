@@ -96,7 +96,7 @@ static inline void create_usern(char *target, char *username, int number)
 }
 
 /* tries to take care of a redirection */
-void handle_3xx(void)
+void handle_3xx(shoot_t *s)
 {
 	char *uscheme, *uuser, *uhost, *contact;
 
@@ -124,11 +124,11 @@ void handle_3xx(void)
 		new_transaction(req, rep);
 		/* extract the needed information*/
 		rport = 0;
-		memset(&address, 0, sizeof(struct addrinfo));
+		memset(&s->addrinfo, 0, sizeof(struct addrinfo));
 		parse_uri(contact, &uscheme, &uuser, &uhost, &rport);
 
-		if (!rport && getaddress(uhost, rport, transport, &address) < 0) {
-			if (getsrvadr(uhost, &address) < 0) {
+		if (!rport && getaddress(uhost, rport, transport, &s->addrinfo) < 0) {
+			if (getsrvadr(uhost, &s->addrinfo) < 0) {
 				fprintf(stderr, "error: cannot determine host "
 						"address from Contact of redirect:"
 						"\n%s\n", rec);
@@ -137,7 +137,7 @@ void handle_3xx(void)
 		}
 		free(contact);
 		if (!outbound_proxy)
-			cdata.connected = set_target(&address, cdata.csock, cdata.connected);
+			cdata.connected = set_target(&s->addrinfo, cdata.csock, cdata.connected);
 	}
 	else {
 		fprintf(stderr, "error: cannot handle this redirect:"
@@ -841,7 +841,7 @@ void shoot(char *buf, int buff_size, shoot_t *s)
 	rep = buf2;
 	rec = buf3;
 
-	create_sockets(&cdata, address.ai_family);
+	create_sockets(&cdata, s->addrinfo.ai_family);
 
 	if (sleep_ms != 0) {
 		if (sleep_ms == -2) {
@@ -960,7 +960,7 @@ void shoot(char *buf, int buff_size, shoot_t *s)
 			set_maxforw(req, maxforw);
 	}
 
-	cdata.connected = set_target(&address, cdata.csock, cdata.connected);
+	cdata.connected = set_target(&s->addrinfo, cdata.csock, cdata.connected);
 
 	/* here we go until someone decides to exit */
 	while(1) {
@@ -976,7 +976,7 @@ void shoot(char *buf, int buff_size, shoot_t *s)
 			nanosleep(&sleep_ms_s, &sleep_rem);
 		}
 
-		send_message(req, &cdata, &counters, &timers);
+		send_message(s, req, &cdata, &counters, &timers);
 
 		/* in flood we are only interested in sending so skip the rest */
 		if (flood == 0) {
@@ -995,7 +995,7 @@ void shoot(char *buf, int buff_size, shoot_t *s)
 					cdata.dontsend = 0;
 					inv_trans = 0;
 					/* lets fire the ACK to the server */
-					send_message(rep, &cdata, &counters, &timers);
+					send_message(s, rep, &cdata, &counters, &timers);
 					inv_trans = 1;
 				}
 				/* check for old CSeq => ignore retransmission */
@@ -1039,7 +1039,7 @@ void shoot(char *buf, int buff_size, shoot_t *s)
 				} /* if auth...*/
 				/* lets see if received a redirect */
 				if (redirects == 1 && regexec(&(regexps.redexp), rec, 0, 0, 0) == REG_NOERROR) {
-					handle_3xx();
+					handle_3xx(s);
 				} /* if redircts... */
 				else if (trace == 1) {
 					trace_reply(s);
