@@ -670,14 +670,6 @@ void insert_cr(char *mes) {
 	}
 }
 
-void swap_ptr(char **fst, char **snd) {
-	char *tmp;
-
-	tmp = *fst;
-	*fst = *snd;
-	*snd = tmp;
-}
-
 /* trashes one character in buff randomly */
 void trash_random(char *message) {
 	int r;

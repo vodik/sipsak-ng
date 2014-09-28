@@ -68,10 +68,17 @@ struct sipsak_con_data cdata;
 struct sipsak_counter counters;
 struct sipsak_delay delays;
 
+inline static void swap_ptr(char **fst, char **snd) {
+	char *tmp;
+
+	tmp = *fst;
+	*fst = *snd;
+	*snd = tmp;
+}
+
 /* if a reply was received successfuly, return success, unless
  * reply matching is enabled and no match occured
  */
-
 inline static void on_success(shoot_t *s, char *rep)
 {
 	if ((rep != NULL) && s->re && regexec(s->re, rep, 0, 0, 0) == REG_NOMATCH) {
