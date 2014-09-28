@@ -789,19 +789,12 @@ int read_stdin(char *buf, int size, int ret) {
 /* tries to allocate the given size of memory and sets it all to zero.
  * if the allocation fails it exits */
 void *str_alloc(size_t size) {
-	char *ptr;
-#ifdef HAVE_CALLOC
-	ptr = calloc(1, size);
-#else
-	ptr = malloc(size);
-#endif
+	char *ptr = malloc(size);
 	if (ptr == NULL) {
 		fprintf(stderr, "error: memory allocation failed\n");
 		exit_code(255, __PRETTY_FUNCTION__, "memory allocation failure");
 	}
-#ifndef HAVE_CALLOC
-	memset(ptr, 0, size);
-#endif
+	*ptr = 0;
 	return ptr;
 }
 
