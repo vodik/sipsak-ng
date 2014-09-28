@@ -48,7 +48,7 @@ void insert_header(char *mes, char *header, int first) {
 }
 
 /* add a Via Header Field in the message. */
-void add_via(char *mes)
+void add_via(char *mes, const char *fqdn)
 {
 	char *via_line, *via, *backup;
 

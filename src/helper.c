@@ -512,7 +512,7 @@ int getsrvadr(char *host, struct addrinfo *res) {
 /* because the full qualified domain name is needed by many other
    functions it will be determined by this function.
 */
-void get_fqdn(int family){
+void get_fqdn(int family, char fqdn[FQDN_SIZE]) {
 	char hname[100], dname[100], hlp[18];
 
 	memset(&hname, 0, sizeof(hname));

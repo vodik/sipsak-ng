@@ -345,7 +345,6 @@ int main(int argc, char *argv[])
 	timer_t2 = 8;
 	timer_final = 64;
 	memset(buff, 0, BUFSIZE);
-	memset(fqdn, 0, FQDN_SIZE);
 #ifdef WITH_TLS_TRANSP
 	cert_file = ca_file = NULL;
 	ignore_ca_fail = 0;
@@ -1033,7 +1032,7 @@ int main(int argc, char *argv[])
 #endif /* WITH_TLS_TRANSP */
 
 	/* determine our hostname */
-	get_fqdn(s.addrinfo.ai_family);
+	get_fqdn(s.addrinfo.ai_family, s.fqdn);
 	
 	/* this is not a cryptographic random number generator,
 	   but hey this is only a test-tool => should be satisfying*/

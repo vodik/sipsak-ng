@@ -24,7 +24,7 @@
 
 void insert_header(char *mes, char *header, int first);
 
-void add_via(char *mes);
+void add_via(char *mes, const char *fqdn);
 
 void cpy_vias(char *reply, char *dest);
 

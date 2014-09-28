@@ -20,6 +20,6 @@
 #ifndef SIPSAK_REQUEST_H
 #define SIPSAK_REQUEST_H
 
-void create_msg(int action, char *buff, char *repl_buff, char *username, int cseq);
+void create_msg(int action, char *req_buff, char *repl_buff, char *username, const char *fqdn, int cseq);
 
 #endif

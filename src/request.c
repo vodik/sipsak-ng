@@ -29,7 +29,7 @@
 #include "header_f.h"
 
 /* create a valid sip header for the different modes */
-void create_msg(int action, char *req_buff, char *repl_buff, char *username, int cseq){
+void create_msg(int action, char *req_buff, char *repl_buff, char *username, const char *fqdn, int cseq){
 	unsigned int c, d, len;
 	char *req_buf_begin = req_buff;
 
@@ -85,7 +85,7 @@ void create_msg(int action, char *req_buff, char *repl_buff, char *username, int
 			else{
 				sprintf(req_buff, "\r\n");
 			}
-			add_via(req_buf_begin);
+			add_via(req_buf_begin, fqdn);
 			break;
 		case REQ_REM:
 			sprintf(req_buff, 
@@ -117,7 +117,7 @@ void create_msg(int action, char *req_buff, char *repl_buff, char *username, int
 				sprintf(req_buff, "%s%s\r\n\r\n", TRANSPORT_PARAMETER_STR,
 						transport_str);
 			}
-			add_via(req_buf_begin);
+			add_via(req_buf_begin, fqdn);
 			break;
 		case REQ_INV:
 			sprintf(req_buff, 
@@ -152,7 +152,7 @@ void create_msg(int action, char *req_buff, char *repl_buff, char *username, int
 					"\r\n",
 					FROM_STR, fqdn, lport, c);
 			}
-			add_via(req_buf_begin);
+			add_via(req_buf_begin, fqdn);
 			sprintf(repl_buff, 
 				"%s"
 				"%ssip:sipsak@%s:%i;tag=%x\r\n"
@@ -224,7 +224,7 @@ void create_msg(int action, char *req_buff, char *repl_buff, char *username, int
 				req_buff += strlen(req_buff) - 1;
 				*(req_buff) = '.';
 			}
-			add_via(req_buf_begin);
+			add_via(req_buf_begin, fqdn);
 			sprintf(repl_buff,
 				"%s"
 				"%ssip:sipsak@%s:%i;tag=%x\r\n"
@@ -265,7 +265,7 @@ void create_msg(int action, char *req_buff, char *repl_buff, char *username, int
 				MAX_FRW_STR, 
 				UA_STR, UA_VAL_STR,
 				ACP_STR, TXT_PLA_STR);
-			add_via(req_buf_begin);
+			add_via(req_buf_begin, fqdn);
 			break;
 		case REQ_FLOOD:
 			sprintf(req_buff, 
@@ -312,7 +312,7 @@ void create_msg(int action, char *req_buff, char *repl_buff, char *username, int
 				CON_LEN_STR, 
 				MAX_FRW_STR, 
 				UA_STR, UA_VAL_STR);
-			add_via(req_buf_begin);
+			add_via(req_buf_begin, fqdn);
 			break;
 		default:
 			fprintf(stderr, "error: unknown request type to create\n");
