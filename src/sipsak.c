@@ -333,7 +333,11 @@ int main(int argc, char *argv[])
 	username=password=replace_str=hostname=contact_uri=mes_body = NULL;
 	con_dis=auth_username=from_uri=headers=authhash=srcaddr = NULL;
 	scheme = user = host = backup = req = rep = rec = NULL;
-	re = NULL;
+
+	shoot_t s = {
+		.re = NULL
+	};
+
 	transport=tsp = 0;
 	rport = port = 0;
 	expires_t = USRLOC_EXP_DEF;
@@ -637,18 +641,18 @@ int main(int argc, char *argv[])
 				processes=str_to_int(optarg);
 				break;
 			case 'q':
-				if (re) {
+				if (s.re) {
 					/* previously allocated -- free */
-					regfree(re);
+					regfree(s.re);
 				} else {
 					/* never tried -- allocate */
-					re=malloc(sizeof(regex_t));
+					s.re = malloc(sizeof(regex_t));
 				};
-				if (!re) {
+				if (!s.re) {
 					fprintf(stderr, "Error: can't allocate RE\n");
 					exit_code(2, __PRETTY_FUNCTION__, "failed to allocate memory for regualr expression");
 				};
-				if (regcomp(re, optarg, REG_EXTENDED|REG_ICASE|REG_NEWLINE )!=0) {
+				if (regcomp(s.re, optarg, REG_EXTENDED|REG_ICASE|REG_NEWLINE )!=0) {
 					fprintf(stderr, "Error: compiling RE: %s\n", optarg );
 					exit_code(2, __PRETTY_FUNCTION__, "failed to compile regular expression");
 				};
@@ -1053,7 +1057,7 @@ int main(int argc, char *argv[])
 			upp = (nameend - namebeg + 1) / processes;
 			namebeg = namebeg + upp * i;
 			nameend = namebeg + upp;
-			shoot(&buff[0], sizeof(buff));
+			shoot(&buff[0], sizeof(buff), &s);
 		} else {
 			if (lport) {
 				lport++;
@@ -1075,7 +1079,7 @@ int main(int argc, char *argv[])
 		namebeg = namebeg + upp * i;
 		nameend = namebeg + upp;
 	}
-	shoot(&buff[0], sizeof(buff));
+	shoot(&buff[0], sizeof(buff), &s);
 
 	/* normaly we won't come back here, but to satisfy the compiler */
 	return 0;

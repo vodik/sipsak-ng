@@ -320,6 +320,10 @@ SSL* ssl;
 # endif
 #endif
 
+typedef struct shoot_t {
+    regex_t *re;
+} shoot_t;
+
 /* lots of global variables. ugly but makes life easier. */
 struct addrinfo address;
 unsigned int nonce_count, transport;
@@ -335,6 +339,5 @@ char fqdn[FQDN_SIZE];
 char target_dot[NI_MAXSERV], source_dot[NI_MAXSERV];
 char target_serv[NI_MAXSERV], source_serv[NI_MAXSERV];
 char *req, *rep, *rec, *transport_str;
-regex_t* re;
 
 #endif

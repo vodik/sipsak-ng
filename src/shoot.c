@@ -72,9 +72,9 @@ struct sipsak_delay delays;
  * reply matching is enabled and no match occured
  */
 
-inline static void on_success(char *rep)
+inline static void on_success(shoot_t *s, char *rep)
 {
-	if ((rep != NULL) && re && regexec(re, rep, 0, 0, 0) == REG_NOMATCH) {
+	if ((rep != NULL) && s->re && regexec(s->re, rep, 0, 0, 0) == REG_NOMATCH) {
 		log_message(req);
 		fprintf(stderr, "error: RegExp failed\n");
 		exit_code(32, __PRETTY_FUNCTION__, "regular expression failed");
@@ -147,7 +147,7 @@ void handle_3xx(void)
 }
 
 /* takes care of replies in the trace route mode */
-void trace_reply()
+void trace_reply(shoot_t* s)
 {
 	char *contact;
 
@@ -204,7 +204,7 @@ void trace_reply()
 			printf("\twithout Contact header\n");
 		}
 		if (regexec(&(regexps.okexp), rec, 0, 0, 0) == REG_NOERROR) {
-			on_success(rec);
+			on_success(s, rec);
 		} else {
 			log_message(req);
 			exit_code(1, __PRETTY_FUNCTION__, "received final non-2xx reply");
@@ -213,7 +213,7 @@ void trace_reply()
 }
 
 /* takes care of replies in the default mode */
-void handle_default()
+void handle_default(shoot_t *s)
 {
 	/* in the normal send and reply case anything other
 	   then 1xx will be treated as final response*/
@@ -278,7 +278,7 @@ void handle_default()
 		}
 		if (timing == 0) {
 			if (regexec(&(regexps.okexp), rec, 0, 0, 0) == REG_NOERROR) {
-				on_success(rec);
+				on_success(s, rec);
 			}
 			else {
 				log_message(req);
@@ -331,7 +331,7 @@ void handle_randtrash()
 }
 
 /* takes care of replies in the usrloc mode */
-void handle_usrloc()
+void handle_usrloc(shoot_t *s)
 {
 	char *crlf;
 	char ruri[11+12+20]; //FIXME: username length 20 should be dynamic
@@ -401,7 +401,7 @@ void handle_usrloc()
 							printf("%.3f ms\n",
 										deltaT(&(timers.firstsendt), &(timers.recvtime)));
 						}
-						on_success(rec);
+						on_success(s, rec);
 					} /* namebeg == nameend */
 					/* lets see if we deceid to remove a
 					   binding (case 6)*/
@@ -538,7 +538,7 @@ void handle_usrloc()
 								exit_code(4, __PRETTY_FUNCTION__, "#retransmissions above nagios warn level");
 							}
 						}
-						on_success(rec);
+						on_success(s, rec);
 					} /* namebeg == nameend */
 					if (usrloc == 1) {
 						/* lets see if we deceid to remove a
@@ -651,7 +651,7 @@ void handle_usrloc()
 								exit_code(4, __PRETTY_FUNCTION__, "#retransmissions above nagios warn level");
 							}
 						}
-						on_success(rec);
+						on_success(s, rec);
 					} /* namebeg == nameend */
 					if (usrloc == 1) {
 						/* lets see if we deceid to remove a
@@ -798,7 +798,7 @@ void before_sending()
 }
 
 /* this is the main function with the loops and modes */
-void shoot(char *buf, int buff_size)
+void shoot(char *buf, int buff_size, shoot_t *s)
 {
 	struct timespec sleep_ms_s, sleep_rem;
 	int ret, cseqtmp, rand_tmp;
@@ -1042,16 +1042,16 @@ void shoot(char *buf, int buff_size)
 					handle_3xx();
 				} /* if redircts... */
 				else if (trace == 1) {
-					trace_reply();
+					trace_reply(s);
 				} /* if trace ... */
 				else if (usrloc == 1||invite == 1||message == 1) {
-					handle_usrloc();
+					handle_usrloc(s);
 				}
 				else if (randtrash == 1) {
 					handle_randtrash();
 				}
 				else {
-					handle_default();
+					handle_default(s);
 				} /* redirect, auth, and modes */
 			} /* ret > 0 */
 			else if (ret == -1) { // we did not got anything back, send again

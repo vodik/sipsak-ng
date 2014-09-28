@@ -58,6 +58,6 @@ enum usteps {
 
 int inv_trans;
 
-void shoot(char *buff, int buff_size);
+void shoot(char *buf, int buff_size, shoot_t *s);
 
 #endif
