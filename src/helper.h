@@ -90,5 +90,5 @@ int read_stdin(char *buf, int size, int ret);
 
 void *str_alloc(size_t size);
 
-void dbg(char* format, ...);
+void dbg(char* format, ...) __attribute__((format (printf, 1,2)));
 #endif

@@ -632,9 +632,7 @@ int main(int argc, char *argv[])
 				}
 				proxyname = host;
 				outbound_proxy=1;
-#ifdef DEBUG
-				printf("address: %lu, rport: %i\n", address, rport);
-#endif
+				/* dbg("address: %lu, rport: %i\n", s.addrinfo, rport); */
 				break;
 			case 'P':
 				processes=str_to_int(optarg);
@@ -701,9 +699,7 @@ int main(int argc, char *argv[])
 					domainname = backup;
 				}
 				uri_b=1;
-#ifdef DEBUG
-				printf("address: %lu, rport: %i, username: '%s', domain: '%s'\n", address, rport, username, domainname);
-#endif
+				/* dbg("address: %lu, rport: %i, username: '%s', domain: '%s'\n", address, rport, username, domainname); */
 				break;
 			case 'S':
 				fprintf(stderr, "warning: symmetric does not work with a-symmetric servers\n");
