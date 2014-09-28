@@ -670,19 +670,6 @@ void insert_cr(char *mes) {
 	}
 }
 
-/* sipmly swappes the content of the two buffers */
-void swap_buffers(char *fst, char *snd) {
-	char *tmp;
-
-	if (fst == snd)
-		return;
-	tmp = str_alloc(strlen(fst)+1);
-	strcpy(tmp, fst);
-	strcpy(fst, snd);
-	strcpy(snd, tmp);
-	free(tmp);
-}
-
 void swap_ptr(char **fst, char **snd) {
 	char *tmp;
 
