@@ -773,7 +773,7 @@ void check_socket_error(int socket, int size) {
 	}
 }
 
-int check_for_message(char *recv, int size, struct sipsak_con_data *cd,
+int check_for_message(shoot_t *s, char *recv, int size, struct sipsak_con_data *cd,
 			struct sipsak_sr_time *srt, struct sipsak_counter *count,
 			struct sipsak_delay *sd) {
 	fd_set	fd;
@@ -832,7 +832,7 @@ int check_for_message(char *recv, int size, struct sipsak_con_data *cd,
 		}
 		if (randtrash == 1) {
 			printf("did not get a response on this request:\n%s\n", req);
-			if (cseq_counter < nameend) {
+			if (s->cseq_counter < nameend) {
 				if (count->randretrys == 2) {
 					printf("sended the following message three "
 							"times without getting a response:\n%s\n"
@@ -865,7 +865,7 @@ int check_for_message(char *recv, int size, struct sipsak_con_data *cd,
 				count->run++;
 				sd->all_delay += senddiff;
 				sd->big_delay = senddiff;
-				new_transaction(req, rep);
+				new_transaction(s, req, rep);
 				sd->retryAfter = timer_t1;
 				if (timing == 0) {
 					printf("%.3f/%.3f/%.3f ms\n", sd->small_delay, sd->all_delay / count->run, sd->big_delay);
@@ -957,7 +957,7 @@ int complete_mes(char *mes, int size) {
 	}
 }
 
-int recv_message(char *buf, int size, int inv_trans, 
+int recv_message(shoot_t *s, char *buf, int size, int inv_trans, 
 			struct sipsak_delay *sd, struct sipsak_sr_time *srt,
 			struct sipsak_counter *count, struct sipsak_con_data *cd,
 			struct sipsak_regexp *reg) {
@@ -976,7 +976,7 @@ int recv_message(char *buf, int size, int inv_trans,
 		buf = cd->buf_tmp;
 		size = size - cd->buf_tmp_size;
 	}
-	sock = check_for_message(buf, size, cd, srt, count, sd);
+	sock = check_for_message(s, buf, size, cd, srt, count, sd);
 	if (sock <= 1) {
 		return -1;
 	}

@@ -121,7 +121,7 @@ void handle_3xx(shoot_t *s)
 		}
 		/* correct our request */
 		uri_replace(req, contact);
-		new_transaction(req, rep);
+		new_transaction(s, req, rep);
 		/* extract the needed information*/
 		rport = 0;
 		memset(&s->addrinfo, 0, sizeof(struct addrinfo));
@@ -164,8 +164,8 @@ void trace_reply(shoot_t* s)
 			print_message_line(rec);
 		}
 		namebeg++;
-		cseq_counter++;
-		create_msg(REQ_OPT, req, NULL, usern, s->fqdn, cseq_counter);
+		s->cseq_counter++;
+		create_msg(REQ_OPT, req, NULL, usern, s->fqdn, s->cseq_counter);
 		set_maxforw(req, namebeg);
 		return;
 	}
@@ -272,7 +272,7 @@ void handle_default(shoot_t *s)
 			}
 			else {
 				counters.run++;
-				new_transaction(req, rep);
+				new_transaction(s, req, rep);
 				delays.retryAfter = timer_t1;
 			}
 		}
@@ -289,7 +289,7 @@ void handle_default(shoot_t *s)
 }
 
 /* takes care of replies in the readntrash mode */
-void handle_randtrash()
+void handle_randtrash(shoot_t *s)
 {
 	/* in randomzing trash we are expexting 4?? error codes
 	   everything else should not be normal */
@@ -313,7 +313,7 @@ void handle_randtrash()
 		if (verbose > 1)
 			printf("sended:\n%s\nreceived:\n%s\n", req, rec);
 	}
-	if (cseq_counter == nameend) {
+	if (s->cseq_counter == nameend) {
 		if (counters.randretrys == 0) {
 			printf("random end reached. server survived :) respect!\n");
 			exit_code(0, __PRETTY_FUNCTION__, NULL);
@@ -407,28 +407,28 @@ void handle_usrloc(shoot_t *s)
 					   binding (case 6)*/
 					if ( ((float)rand()/RAND_MAX)*100 > rand_rem) {
 						namebeg++;
-						cseq_counter++;
+						s->cseq_counter++;
 						create_usern(usern, username, namebeg);
-						create_msg(REQ_REG, req, NULL, usern, s->fqdn, cseq_counter);
+						create_msg(REQ_REG, req, NULL, usern, s->fqdn, s->cseq_counter);
 					}
 					else {
 						/* to prevent only removing of low
 						   user numbers new random number*/
-						cseq_counter++;
+						s->cseq_counter++;
 						create_usern(usern, username, ((float)rand()/RAND_MAX) * namebeg);
-						create_msg(REQ_REM, req, NULL, usern, s->fqdn, cseq_counter);
+						create_msg(REQ_REM, req, NULL, usern, s->fqdn, s->cseq_counter);
 						usrlocstep=UNREG_REP;
 					}
 				} /* invite == 0 && message == 0 */
 				else if (invite == 1) {
-					cseq_counter++;
-					create_msg(REQ_INV, req, rep, usern, s->fqdn, cseq_counter);
+					s->cseq_counter++;
+					create_msg(REQ_INV, req, rep, usern, s->fqdn, s->cseq_counter);
 					inv_trans = 1;
 					usrlocstep=INV_RECV;
 				}
 				else if (message == 1) {
-					cseq_counter++;
-					create_msg(REQ_MES, req, rep, usern, s->fqdn, cseq_counter);
+					s->cseq_counter++;
+					create_msg(REQ_MES, req, rep, usern, s->fqdn, s->cseq_counter);
 					inv_trans = 0;
 					usrlocstep=MES_RECV;
 				}
@@ -545,25 +545,25 @@ void handle_usrloc(shoot_t *s)
 						   binding (case 6)*/
 						if (((float)rand()/RAND_MAX) * 100 > rand_rem) {
 							namebeg++;
-							cseq_counter++;
+							s->cseq_counter++;
 							create_usern(usern, username, namebeg);
-							create_msg(REQ_REG, req, NULL, usern, s->fqdn, cseq_counter);
+							create_msg(REQ_REG, req, NULL, usern, s->fqdn, s->cseq_counter);
 							usrlocstep=REG_REP;
 						}
 						else {
 							/* to prevent only removing of low
 							   user numbers new random number*/
-							cseq_counter++;
+							s->cseq_counter++;
 							create_usern(usern, username, ((float)rand()/RAND_MAX) * namebeg);
-							create_msg(REQ_REM, req, NULL, usern, s->fqdn, cseq_counter);
+							create_msg(REQ_REM, req, NULL, usern, s->fqdn, s->cseq_counter);
 							usrlocstep=UNREG_REP;
 						}
 					} /* usrloc == 1 */
 					else {
 						namebeg++;
-						cseq_counter++;
+						s->cseq_counter++;
 						create_usern(usern, username, namebeg);
-						create_msg(REQ_INV, req, rep, usern, s->fqdn, cseq_counter);
+						create_msg(REQ_INV, req, rep, usern, s->fqdn, s->cseq_counter);
 						inv_trans = 1;
 						usrlocstep=INV_RECV;
 					}
@@ -658,25 +658,25 @@ void handle_usrloc(shoot_t *s)
 						   binding (case 6)*/
 						if (((float)rand()/RAND_MAX) * 100 > rand_rem) {
 							namebeg++;
-							cseq_counter++;
+							s->cseq_counter++;
 							create_usern(usern, username, namebeg);
-							create_msg(REQ_REG, req, NULL, usern, s->fqdn, cseq_counter);
+							create_msg(REQ_REG, req, NULL, usern, s->fqdn, s->cseq_counter);
 							usrlocstep=REG_REP;
 						}
 						else {
 							/* to prevent only removing of low
 							   user numbers new random number*/
-							cseq_counter++;
+							s->cseq_counter++;
 							create_usern(usern, username, ((float)rand()/RAND_MAX) * namebeg);
-							create_msg(REQ_REM, req, NULL, usern, s->fqdn, cseq_counter);
+							create_msg(REQ_REM, req, NULL, usern, s->fqdn, s->cseq_counter);
 							usrlocstep=UNREG_REP;
 						}
 					} /* usrloc == 1 */
 					else {
 						namebeg++;
-						cseq_counter++;
+						s->cseq_counter++;
 						create_usern(usern, username, namebeg);
-						create_msg(REQ_MES, req, NULL, usern, s->fqdn, cseq_counter);
+						create_msg(REQ_MES, req, NULL, usern, s->fqdn, s->cseq_counter);
 						usrlocstep=MES_RECV;
 					}
 				} /* regexec */
@@ -721,9 +721,9 @@ void handle_usrloc(shoot_t *s)
 						printf("Binding removal for %s successful\n", username);
 					}
 					namebeg++;
-					cseq_counter++;
+					s->cseq_counter++;
 					create_usern(usern, username, namebeg);
-					create_msg(REQ_REG, req, NULL, usern, s->fqdn, cseq_counter);
+					create_msg(REQ_REG, req, NULL, usern, s->fqdn, s->cseq_counter);
 					usrlocstep=REG_REP;
 				}
 				else {
@@ -744,7 +744,7 @@ void handle_usrloc(shoot_t *s)
 	} /* regexec proexp */
 }
 
-void before_sending()
+void before_sending(shoot_t *s)
 {
 	/* some initial output */
 	if ((usrloc == 1||invite == 1||message == 1) && (verbose > 1) && (cdata.dontsend == 0)) {
@@ -791,7 +791,7 @@ void before_sending()
 		printf("flooding message number %i\n", namebeg);
 	}
 	else if (randtrash == 1 && verbose > 0) {
-		printf("message with %i randomized chars\n", cseq_counter);
+		printf("message with %i randomized chars\n", s->cseq_counter);
 		if (verbose > 2)
 			printf("request:\n%s\n", req);
 	}
@@ -812,7 +812,7 @@ void shoot(char *buf, int buff_size, shoot_t *s)
 		delays.retryAfter = timer_final;
 	}
 	inv_trans = 0;
-	cseq_counter = 1;
+	s->cseq_counter = 1;
 	usrlocstep = REG_REP;
 
 	/* initalize local vars */
@@ -901,16 +901,16 @@ void shoot(char *buf, int buff_size, shoot_t *s)
 	if (usrloc == 1||invite == 1||message == 1){
 		/* calculate the number of required steps and create initial mes */
 		if (usrloc == 1) {
-			create_msg(REQ_REG, req, NULL, usern, s->fqdn, cseq_counter);
+			create_msg(REQ_REG, req, NULL, usern, s->fqdn, s->cseq_counter);
 			usrlocstep=REG_REP;
 		}
 		else if (invite == 1) {
-			create_msg(REQ_INV, req, rep, usern, s->fqdn, cseq_counter);
+			create_msg(REQ_INV, req, rep, usern, s->fqdn, s->cseq_counter);
 			inv_trans = 1;
 			usrlocstep=INV_RECV;
 		}
 		else {
-			create_msg(REQ_MES, req, rep, usern, s->fqdn, cseq_counter);
+			create_msg(REQ_MES, req, rep, usern, s->fqdn, s->cseq_counter);
 			if (mes_body)
 				usrlocstep=MES_OK_RECV;
 			else
@@ -920,18 +920,18 @@ void shoot(char *buf, int buff_size, shoot_t *s)
 	else if (trace == 1){
 		/* for trace we need some spezial initis */
 		namebeg=0;
-		create_msg(REQ_OPT, req, NULL, usern, s->fqdn, cseq_counter);
+		create_msg(REQ_OPT, req, NULL, usern, s->fqdn, s->cseq_counter);
 		set_maxforw(req, namebeg);
 	}
 	else if (flood == 1){
 		if (nameend<=0) nameend=INT_MAX;
 		namebeg=1;
-		create_msg(REQ_FLOOD, req, NULL, usern, s->fqdn, cseq_counter);
+		create_msg(REQ_FLOOD, req, NULL, usern, s->fqdn, s->cseq_counter);
 	}
 	else if (randtrash == 1){
 		counters.randretrys=0;
 		namebeg=1;
-		create_msg(REQ_RAND, req, NULL, usern, s->fqdn, cseq_counter);
+		create_msg(REQ_RAND, req, NULL, usern, s->fqdn, s->cseq_counter);
 		nameend=(int)strlen(req);
 		if (trashchar == 1){
 			if (trashchar < nameend)
@@ -946,7 +946,7 @@ void shoot(char *buf, int buff_size, shoot_t *s)
 		/* for none of the modes we also need some inits */
 		if (file_b == 0) {
 			namebeg=1;
-			create_msg(REQ_OPT, req, NULL, usern, s->fqdn, cseq_counter);
+			create_msg(REQ_OPT, req, NULL, usern, s->fqdn, s->cseq_counter);
 		}
 		else {
 			if (STRNCASECMP(req, INV_STR, INV_STR_LEN) == 0) {
@@ -964,7 +964,7 @@ void shoot(char *buf, int buff_size, shoot_t *s)
 
 	/* here we go until someone decides to exit */
 	while(1) {
-		before_sending();
+		before_sending(s);
 
 		if (sleep_ms == -2) {
 			rand_tmp = rand();
@@ -980,7 +980,7 @@ void shoot(char *buf, int buff_size, shoot_t *s)
 
 		/* in flood we are only interested in sending so skip the rest */
 		if (flood == 0) {
-			ret = recv_message(rec, BUFSIZE, inv_trans, &delays, &timers,
+			ret = recv_message(s, rec, BUFSIZE, inv_trans, &delays, &timers,
 						&counters, &cdata, &regexps);
 			if(ret > 0)
 			{
@@ -1000,7 +1000,7 @@ void shoot(char *buf, int buff_size, shoot_t *s)
 				}
 				/* check for old CSeq => ignore retransmission */
 				cseqtmp = cseq(rec);
-				if ((0 < cseqtmp) && (cseqtmp < cseq_counter)) {
+				if ((0 < cseqtmp) && (cseqtmp < s->cseq_counter)) {
 					if (verbose>0) {
 						printf("ignoring retransmission\n");
 					}
@@ -1020,7 +1020,7 @@ void shoot(char *buf, int buff_size, shoot_t *s)
 								exit_code(0, __PRETTY_FUNCTION__, NULL);
 							}
 							counters.run++;
-							new_transaction(req, rep);
+							new_transaction(s, req, rep);
 							delays.retryAfter = timer_t1;
 							continue;
 						}
@@ -1034,7 +1034,7 @@ void shoot(char *buf, int buff_size, shoot_t *s)
 					insert_auth(req, rec);
 					if (verbose > 2)
 						printf("\nreceived:\n%s\n", rec);
-					new_transaction(req, rep);
+					new_transaction(s, req, rep);
 					continue;
 				} /* if auth...*/
 				/* lets see if received a redirect */
@@ -1048,7 +1048,7 @@ void shoot(char *buf, int buff_size, shoot_t *s)
 					handle_usrloc(s);
 				}
 				else if (randtrash == 1) {
-					handle_randtrash();
+					handle_randtrash(s);
 				}
 				else {
 					handle_default(s);
@@ -1086,8 +1086,8 @@ void shoot(char *buf, int buff_size, shoot_t *s)
 				exit_code(0, __PRETTY_FUNCTION__, NULL);
 			}
 			namebeg++;
-			cseq_counter++;
-			create_msg(REQ_FLOOD, req, NULL, usern, s->fqdn, cseq_counter);
+			s->cseq_counter++;
+			create_msg(REQ_FLOOD, req, NULL, usern, s->fqdn, s->cseq_counter);
 		}
 	} /* while 1 */
 

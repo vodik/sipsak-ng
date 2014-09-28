@@ -430,7 +430,7 @@ int cseq(char *message)
 }
 
 /* if it find the Cseq number in the message it will increased by one */
-void increase_cseq(char *message, char *reply)
+void increase_cseq(shoot_t *s, char *message, char *reply)
 {
 	int cs;
 	char *cs_s, *eol, *backup;
@@ -455,7 +455,7 @@ void increase_cseq(char *message, char *reply)
 		cs_s+=strlen(cs_s);
 		strncpy(cs_s, backup, strlen(backup));
 		free(backup);
-		cseq_counter = cs;
+		s->cseq_counter = cs;
 	}
 	else if (verbose > 1)
 		printf("'CSeq' not found in message\n");
@@ -651,9 +651,9 @@ void new_branch(char *message)
 }
 
 /* increase the CSeq and insert a new branch value */
-void new_transaction(char *message, char *reply)
+void new_transaction(shoot_t *s, char *message, char *reply)
 {
-	increase_cseq(message, reply);
+	increase_cseq(s, message, reply);
 	new_branch(message);
 }
 

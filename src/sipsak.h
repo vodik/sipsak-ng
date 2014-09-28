@@ -323,12 +323,13 @@ SSL* ssl;
 typedef struct shoot_t {
     struct addrinfo addrinfo;
     char fqdn[FQDN_SIZE];
+    int cseq_counter;
     regex_t *re;
 } shoot_t;
 
 /* lots of global variables. ugly but makes life easier. */
 unsigned int nonce_count, transport;
-int sleep_ms, processes, cseq_counter;
+int sleep_ms, processes;
 int verbose, nameend, namebeg, expires_t, flood, warning_ext, invite, message;
 int maxforw, lport, rport, randtrash, trashchar, numeric, symmetric;
 int file_b, uri_b, trace, via_ins, usrloc, redirects, rand_rem, replace_b;

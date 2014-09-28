@@ -78,11 +78,11 @@ void send_message(shoot_t *s, char* mes, struct sipsak_con_data *cd,
 
 void check_socket_error(int socket, int size);
 
-int check_for_message(char *recv, int size, struct sipsak_con_data *cd,
+int check_for_message(shoot_t *s, char *recv, int size, struct sipsak_con_data *cd,
 			struct sipsak_sr_time *srt, struct sipsak_counter *count,
 			struct sipsak_delay *sd);
 
-int recv_message(char *buf, int size, int inv_trans, 
+int recv_message(shoot_t *s, char *buf, int size, int inv_trans, 
 			struct sipsak_delay *sd, struct sipsak_sr_time *srt,
 			struct sipsak_counter *count, struct sipsak_con_data *cd,
 			struct sipsak_regexp *reg);
